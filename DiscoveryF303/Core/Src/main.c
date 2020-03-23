@@ -130,8 +130,8 @@ static float GetFrequency()
 	 {
 		 float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
 		 float frequency = i * frequencyStep;
-		 float is50 = (frequency / 50)-((int)frequency / 50);
-		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000 && is50 > 0)
+		 float is50Harm = ((frequency / 50)-((int)frequency / 50)) == 0;
+		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000 && !is50Harm)
 		 {
 			 maxAmp=ampl;
 			 index = i;
@@ -141,7 +141,7 @@ static float GetFrequency()
 	 float frequencyMax = index * frequencyStep;
 	 return frequencyMax;
 }
-char str[BUFFER_SIZE*6];
+//char str[BUFFER_SIZE*6];
 /* USER CODE END 0 */
 
 /**
@@ -202,8 +202,6 @@ HAL_TIM_Base_Start_IT(&htim2);
   {
 	  if (bufferFull)
 	  {
-
-
 		  isCalculating =1;
 		  float freq = GetFrequency();
 
