@@ -23,6 +23,7 @@
 #include "adc.h"
 #include "dma.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -31,6 +32,7 @@
 #include "math.h"
 #include "samples.h"
 #include "lcd.h"
+#include "string.h"
 
 
 /* USER CODE END Includes */
@@ -70,7 +72,7 @@ volatile _Bool isCalculating;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	if (hadc->Instance == ADC1 && !isCalculating)
+	if (hadc->Instance == ADC1 && !isCalculating && !bufferFull)
 	{
 		for (int i=0; i <BUFFER_SIZE; i++)
 		{
@@ -84,30 +86,52 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (htim->Instance == TIM2)
+	if (htim->Instance == TIM1)
 	{
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
+	}
+	else if (htim->Instance == TIM2)
+	{
 		__NOP();
 
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
+
 	}
 }
 
 static float GetFrequency()
 {
+	uint16_t min=samples[0];
+	uint16_t max=samples[0];
+	for (int i=1; i < BUFFER_SIZE; i++)
+	{
+		if (samples[i]<min)
+		{
+			min = samples[i];
+		}
+		if (samples[i]>max)
+		{
+			max = samples[i];
+		}
+	}
+	uint16_t sampleAmpl = max-min;
+	if (sampleAmpl <200)
+	{
+		return 0;
+	}
 
 	 FFT(samples, imaginary, BUFFER_SIZE , 11, FT_DIRECT); // вычисляем прямое БПФ
 
-	 float frequencySampl = 50000;
+	 float frequencySampl = 25600;
 	 float frequencyStep = frequencySampl / BUFFER_SIZE;
 
 	 float maxAmp=0;
 	 int index = 0;
-	 for (int i=0; i < BUFFER_SIZE; i++)
+	 for (int i=1; i < BUFFER_SIZE/2; i++)
 	 {
 		 float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
 		 float frequency = i * frequencyStep;
-		 if (ampl > maxAmp && frequency > 1000 && frequency < 6000)
+		 float is50 = (frequency / 50)-((int)frequency / 50);
+		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000 && is50 > 0)
 		 {
 			 maxAmp=ampl;
 			 index = i;
@@ -115,8 +139,9 @@ static float GetFrequency()
 	 }
 
 	 float frequencyMax = index * frequencyStep;
+	 return frequencyMax;
 }
-
+char str[BUFFER_SIZE*6];
 /* USER CODE END 0 */
 
 /**
@@ -150,6 +175,8 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
+  MX_TIM1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -157,26 +184,63 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  Lcd_PortType ports[] = {
+		  LCD_D4_GPIO_Port, LCD_D5_GPIO_Port, LCD_D6_GPIO_Port, LCD_D7_GPIO_Port
+   };
+
+   Lcd_PinType pins[] = {LCD_D4_Pin, LCD_D5_Pin, LCD_D6_Pin, LCD_D7_Pin};
+
+   Lcd_HandleTypeDef lcd = Lcd_create(ports, pins, LCD_RS_GPIO_Port, LCD_RS_Pin, LCD_E_GPIO_Port, LCD_E_Pin, LCD_4_BIT_MODE);
+
+
+   HAL_TIM_Base_Start_IT(&htim1);
 HAL_TIM_Base_Start_IT(&htim2);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuf, BUFFER_SIZE);
-
+  Lcd_cursor(&lcd, 0,0);
+  Lcd_string(&lcd, "Frequency:");
   while (1)
   {
-	// uint32_t start = HAL_GetTick();
 	  if (bufferFull)
 	  {
-		  isCalculating = 1;
+
+
+		  isCalculating =1;
 		  float freq = GetFrequency();
-		  bufferFull = 0;
-		  isCalculating = 0;
+
+		/*  if (((int)freq)==1600)
+		  {
+
+		  	  strcpy(str, "");
+		  		  for (int i=0; i<BUFFER_SIZE; i++)
+		  		  {
+		  			  char fstr[5];
+		  			  itoa(adcBuf[i], &fstr, 10);
+		  			  strcat(str, &fstr);
+		  			  strcat(str,", ");
+		  		  }
+		  		  HAL_UART_Transmit(&huart2, &str[0], strlen(str), HAL_MAX_DELAY);
+		  }*/
+
+		  if (freq >0)
+		  {
+
+		  Lcd_cursor(&lcd, 1,0);
+	  	  Lcd_int(&lcd, (int)freq);
+		  }
+		  else
+		  {
+			  Lcd_cursor(&lcd, 1,0);
+			  Lcd_string(&lcd, "0    ");
+		  }
+
+	  	  isCalculating =0;
+	  	  bufferFull = 0;
+	  	  HAL_Delay(500);
 	  }
 
-	 //  uint32_t finish = HAL_GetTick();
-//	   uint32_t elapsed = finish -start;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_4);
 
   }
   /* USER CODE END 3 */
@@ -217,8 +281,11 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_TIM1
+                              |RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

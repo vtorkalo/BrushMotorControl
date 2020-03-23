@@ -1,0 +1,9 @@
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\bin\Debug\ChartPlot.exe.config
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\bin\Debug\ChartPlot.exe
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\bin\Debug\ChartPlot.pdb
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.csprojAssemblyReference.cache
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.Form1.resources
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.Properties.Resources.resources
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.csproj.GenerateResource.cache
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.exe
+D:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\ChartPlot\ChartPlot\obj\Debug\ChartPlot.pdb
