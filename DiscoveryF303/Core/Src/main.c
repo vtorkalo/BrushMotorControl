@@ -30,6 +30,7 @@
 #include "fft.h"
 #include "math.h"
 #include "samples.h"
+#include "lcd.h"
 
 
 /* USER CODE END Includes */
@@ -71,12 +72,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	if (hadc->Instance == ADC1 && !isCalculating)
 	{
-		bufferFull = 1;
 		for (int i=0; i <BUFFER_SIZE; i++)
 		{
 			samples[i] = adcBuf[i];
 			imaginary[i]=0;
 		}
+		bufferFull = 1;
 	}
 
 }
