@@ -63,14 +63,20 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint16_t adcBuf[16];
-volatile _Bool rxDone;
+uint16_t adcBuf[BUFFER_SIZE];
+volatile _Bool bufferFull;
+volatile _Bool isCalculating;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	if (hadc->Instance == ADC1)
+	if (hadc->Instance == ADC1 && !isCalculating)
 	{
-__NOP();
+		bufferFull = 1;
+		for (int i=0; i <BUFFER_SIZE; i++)
+		{
+			samples[i] = adcBuf[i];
+			imaginary[i]=0;
+		}
 	}
 
 }
@@ -84,6 +90,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
 	}
+}
+
+static float GetFrequency()
+{
+
+	 FFT(samples, imaginary, BUFFER_SIZE , 11, FT_DIRECT); // вычисляем прямое БПФ
+
+	 float frequencySampl = 50000;
+	 float frequencyStep = frequencySampl / BUFFER_SIZE;
+
+	 float maxAmp=0;
+	 int index = 0;
+	 for (int i=0; i < BUFFER_SIZE; i++)
+	 {
+		 float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
+		 float frequency = i * frequencyStep;
+		 if (ampl > maxAmp && frequency > 1000 && frequency < 6000)
+		 {
+			 maxAmp=ampl;
+			 index = i;
+		 }
+	 }
+
+	 float frequencyMax = index * frequencyStep;
 }
 
 /* USER CODE END 0 */
@@ -127,35 +157,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 HAL_TIM_Base_Start_IT(&htim2);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuf, 16);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuf, BUFFER_SIZE);
 
   while (1)
   {
 	// uint32_t start = HAL_GetTick();
-	  uint32_t count = sizeof(samples)/sizeof(samples[0]);
-
-	  FFT(samples, imaginary, count , 12, FT_DIRECT); // вычисляем прямое БПФ
-
-	  float frequencySampl = 50000;
-	  float frequencyStep = frequencySampl / count;
-
-	  float maxAmp=0;
-	  int index = 0;
-
-
-	  for (int i=0; i < count; i++)
+	  if (bufferFull)
 	  {
-		  float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
-		  float frequency = i * frequencyStep;
-		  if (ampl > maxAmp && frequency > 1000 && frequency < 6000)
-		  {
-			  maxAmp=ampl;
-			  index = i;
-		  }
+		  isCalculating = 1;
+		  float freq = GetFrequency();
+		  bufferFull = 0;
+		  isCalculating = 0;
 	  }
 
-
-	  float frequencyMax = index * frequencyStep;
 	 //  uint32_t finish = HAL_GetTick();
 //	   uint32_t elapsed = finish -start;
     /* USER CODE END WHILE */
