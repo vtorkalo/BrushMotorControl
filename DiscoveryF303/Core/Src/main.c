@@ -33,6 +33,7 @@
 #include "samples.h"
 #include "lcd.h"
 #include "string.h"
+#include "stdlib.h"
 
 
 /* USER CODE END Includes */
@@ -121,27 +122,74 @@ static float GetFrequency()
 
 	 FFT(samples, imaginary, BUFFER_SIZE , 11, FT_DIRECT); // вычисляем прямое БПФ
 
-	 float frequencySampl = 25600;
+	 float frequencySampl = 51200;
 	 float frequencyStep = frequencySampl / BUFFER_SIZE;
 
 	 float maxAmp=0;
 	 int index = 0;
 	 for (int i=1; i < BUFFER_SIZE/2; i++)
 	 {
-		 float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
+		 float ampl = sqrt(samples[i]*samples[i]
+				+ imaginary[0]*imaginary[0]);
 		 float frequency = i * frequencyStep;
-		 float is50Harm = ((frequency / 50)-((int)frequency / 50)) == 0;
-		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000 && !is50Harm)
+
+		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000)
 		 {
 			 maxAmp=ampl;
 			 index = i;
 		 }
+		 samples[i]=ampl;
 	 }
 
 	 float frequencyMax = index * frequencyStep;
 	 return frequencyMax;
 }
-//char str[BUFFER_SIZE*6];
+char str[BUFFER_SIZE*6];
+
+static void PrintSamples()
+{
+  strcpy(str, "");
+  for (int i=0; i<BUFFER_SIZE; i++)
+  {
+	  char fstr[5];
+	  itoa((int)samples[i], fstr, 10);
+	  strcat(str, fstr);
+	  strcat(str,", ");
+  }
+  HAL_UART_Transmit(&huart2,(uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+}
+
+
+static void PrintAdc()
+{
+  strcpy(str, "");
+  for (int i=0; i<BUFFER_SIZE; i++)
+  {
+	  char fstr[5];
+	  itoa((int)adcBuf[i], fstr, 10);
+	  strcat(str, fstr);
+	  strcat(str,", ");
+  }
+  HAL_UART_Transmit(&huart2, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+}
+
+static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
+{
+	//Lcd_clear(lcd);
+	Lcd_cursor(lcd, 0,0);
+	Lcd_string(lcd, "Frequency:      ");
+	if (freq >0)
+	{
+		Lcd_cursor(lcd, 1,0);
+		Lcd_int(lcd, (int)freq);
+	}
+	else
+	{
+
+		Lcd_cursor(lcd, 1,0);
+		Lcd_string(lcd, "0    ");
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -196,40 +244,14 @@ int main(void)
    HAL_TIM_Base_Start_IT(&htim1);
 HAL_TIM_Base_Start_IT(&htim2);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuf, BUFFER_SIZE);
-  Lcd_cursor(&lcd, 0,0);
-  Lcd_string(&lcd, "Frequency:");
+
   while (1)
   {
 	  if (bufferFull)
 	  {
 		  isCalculating =1;
 		  float freq = GetFrequency();
-
-		/*  if (((int)freq)==1600)
-		  {
-
-		  	  strcpy(str, "");
-		  		  for (int i=0; i<BUFFER_SIZE; i++)
-		  		  {
-		  			  char fstr[5];
-		  			  itoa(adcBuf[i], &fstr, 10);
-		  			  strcat(str, &fstr);
-		  			  strcat(str,", ");
-		  		  }
-		  		  HAL_UART_Transmit(&huart2, &str[0], strlen(str), HAL_MAX_DELAY);
-		  }*/
-
-		  if (freq >0)
-		  {
-
-		  Lcd_cursor(&lcd, 1,0);
-	  	  Lcd_int(&lcd, (int)freq);
-		  }
-		  else
-		  {
-			  Lcd_cursor(&lcd, 1,0);
-			  Lcd_string(&lcd, "0    ");
-		  }
+		  DisplayFreq(&lcd, freq);
 
 	  	  isCalculating =0;
 	  	  bufferFull = 0;
