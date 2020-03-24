@@ -178,6 +178,7 @@ static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
 	//Lcd_clear(lcd);
 	Lcd_cursor(lcd, 0,0);
 	Lcd_string(lcd, "Frequency:      ");
+
 	if (freq >0)
 	{
 		Lcd_cursor(lcd, 1,0);
