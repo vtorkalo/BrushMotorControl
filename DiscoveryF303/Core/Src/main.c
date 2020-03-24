@@ -121,27 +121,29 @@ static float GetFrequency()
 
 	 FFT(samples, imaginary, BUFFER_SIZE , 11, FT_DIRECT); // вычисляем прямое БПФ
 
-	 float frequencySampl = 25600;
+	 float frequencySampl = 51200;
 	 float frequencyStep = frequencySampl / BUFFER_SIZE;
 
 	 float maxAmp=0;
 	 int index = 0;
 	 for (int i=1; i < BUFFER_SIZE/2; i++)
 	 {
-		 float ampl = sqrt(samples[i]*samples[i] + imaginary[0]*imaginary[0]);
+		 float ampl = sqrt(samples[i]*samples[i]
+				+ imaginary[0]*imaginary[0]);
 		 float frequency = i * frequencyStep;
-		 float is50Harm = ((frequency / 50)-((int)frequency / 50)) == 0;
-		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000 && !is50Harm)
+
+		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000)
 		 {
 			 maxAmp=ampl;
 			 index = i;
 		 }
+		 samples[i]=ampl;
 	 }
 
 	 float frequencyMax = index * frequencyStep;
 	 return frequencyMax;
 }
-//char str[BUFFER_SIZE*6];
+char str[BUFFER_SIZE*6];
 /* USER CODE END 0 */
 
 /**
@@ -205,19 +207,7 @@ HAL_TIM_Base_Start_IT(&htim2);
 		  isCalculating =1;
 		  float freq = GetFrequency();
 
-		/*  if (((int)freq)==1600)
-		  {
 
-		  	  strcpy(str, "");
-		  		  for (int i=0; i<BUFFER_SIZE; i++)
-		  		  {
-		  			  char fstr[5];
-		  			  itoa(adcBuf[i], &fstr, 10);
-		  			  strcat(str, &fstr);
-		  			  strcat(str,", ");
-		  		  }
-		  		  HAL_UART_Transmit(&huart2, &str[0], strlen(str), HAL_MAX_DELAY);
-		  }*/
 
 		  if (freq >0)
 		  {
@@ -230,6 +220,20 @@ HAL_TIM_Base_Start_IT(&htim2);
 			  Lcd_cursor(&lcd, 1,0);
 			  Lcd_string(&lcd, "0    ");
 		  }
+
+	/*	  if (((int)freq)<3000)
+		  {
+
+		 	  strcpy(str, "");
+	  		  for (int i=0; i<BUFFER_SIZE; i++)
+	 		  {
+	  			  char fstr[5];
+	 			  itoa((int)samples[i], &fstr, 10);
+	  			  strcat(str, &fstr);
+	  			  strcat(str,", ");
+	  		  }
+	  		  HAL_UART_Transmit(&huart2, &str[0], strlen(str), HAL_MAX_DELAY);
+		  }*/
 
 	  	  isCalculating =0;
 	  	  bufferFull = 0;
