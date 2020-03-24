@@ -33,6 +33,7 @@
 #include "samples.h"
 #include "lcd.h"
 #include "string.h"
+#include "stdlib.h"
 
 
 /* USER CODE END Includes */
@@ -144,6 +145,51 @@ static float GetFrequency()
 	 return frequencyMax;
 }
 char str[BUFFER_SIZE*6];
+
+static void PrintSamples()
+{
+  strcpy(str, "");
+  for (int i=0; i<BUFFER_SIZE; i++)
+  {
+	  char fstr[5];
+	  itoa((int)samples[i], fstr, 10);
+	  strcat(str, fstr);
+	  strcat(str,", ");
+  }
+  HAL_UART_Transmit(&huart2,(uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+}
+
+
+static void PrintAdc()
+{
+  strcpy(str, "");
+  for (int i=0; i<BUFFER_SIZE; i++)
+  {
+	  char fstr[5];
+	  itoa((int)adcBuf[i], fstr, 10);
+	  strcat(str, fstr);
+	  strcat(str,", ");
+  }
+  HAL_UART_Transmit(&huart2, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+}
+
+static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
+{
+	//Lcd_clear(lcd);
+	Lcd_cursor(lcd, 0,0);
+	Lcd_string(lcd, "Frequency:      ");
+	if (freq >0)
+	{
+		Lcd_cursor(lcd, 1,0);
+		Lcd_int(lcd, (int)freq);
+	}
+	else
+	{
+
+		Lcd_cursor(lcd, 1,0);
+		Lcd_string(lcd, "0    ");
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -198,42 +244,14 @@ int main(void)
    HAL_TIM_Base_Start_IT(&htim1);
 HAL_TIM_Base_Start_IT(&htim2);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuf, BUFFER_SIZE);
-  Lcd_cursor(&lcd, 0,0);
-  Lcd_string(&lcd, "Frequency:");
+
   while (1)
   {
 	  if (bufferFull)
 	  {
 		  isCalculating =1;
 		  float freq = GetFrequency();
-
-
-
-		  if (freq >0)
-		  {
-
-		  Lcd_cursor(&lcd, 1,0);
-	  	  Lcd_int(&lcd, (int)freq);
-		  }
-		  else
-		  {
-			  Lcd_cursor(&lcd, 1,0);
-			  Lcd_string(&lcd, "0    ");
-		  }
-
-	/*	  if (((int)freq)<3000)
-		  {
-
-		 	  strcpy(str, "");
-	  		  for (int i=0; i<BUFFER_SIZE; i++)
-	 		  {
-	  			  char fstr[5];
-	 			  itoa((int)samples[i], &fstr, 10);
-	  			  strcat(str, &fstr);
-	  			  strcat(str,", ");
-	  		  }
-	  		  HAL_UART_Transmit(&huart2, &str[0], strlen(str), HAL_MAX_DELAY);
-		  }*/
+		  DisplayFreq(&lcd, freq);
 
 	  	  isCalculating =0;
 	  	  bufferFull = 0;

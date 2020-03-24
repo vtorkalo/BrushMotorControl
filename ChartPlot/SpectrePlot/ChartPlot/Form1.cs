@@ -25,7 +25,8 @@ namespace ChartPlot
             int imax=0;
             for (int i = 1; i < data.Count / 2; i++)
             {
-                if (data[i] > max && i>10)
+                var f = i * freq_step;
+                if (data[i] > max && f>1000)
                 {
                     max = data[i];
                     imax = i;
@@ -38,8 +39,6 @@ namespace ChartPlot
                 var h = g.VisibleClipBounds.Height-100;
                 for (int i=0; i< data.Count/2; i++)
                 {
-     
-
                     Color color = Color.Black;
                     var f = i * freq_step;
                     
