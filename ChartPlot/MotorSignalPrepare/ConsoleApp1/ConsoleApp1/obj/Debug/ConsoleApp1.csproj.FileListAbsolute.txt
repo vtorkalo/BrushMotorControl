@@ -1,0 +1,14 @@
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe.config
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.pdb
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csprojAssemblyReference.cache
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CoreCompileInputs.cache
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.exe
+D:\stm32\work\BrushMotorControl\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csprojAssemblyReference.cache
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CoreCompileInputs.cache
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.exe
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe.config
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.exe
+d:\stm32\work\signals\MotorSignalPrepare\ConsoleApp1\ConsoleApp1\bin\Debug\ConsoleApp1.pdb
