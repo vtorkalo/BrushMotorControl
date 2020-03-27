@@ -68,6 +68,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 uint16_t adcBuf[BUFFER_SIZE];
+uint16_t adcStore[BUFFER_SIZE];
 volatile _Bool bufferFull;
 volatile _Bool isCalculating;
 
@@ -78,6 +79,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		for (int i=0; i <BUFFER_SIZE; i++)
 		{
 			samples[i] = adcBuf[i];
+			adcStore[i] = adcBuf[i];
 			imaginary[i]=0;
 		}
 		bufferFull = 1;
@@ -89,13 +91,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim->Instance == TIM1)
 	{
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
+		//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
 	}
 	else if (htim->Instance == TIM2)
 	{
-		__NOP();
-
-
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
 	}
 }
 
@@ -122,7 +122,7 @@ static float GetFrequency()
 
 	 FFT(samples, imaginary, BUFFER_SIZE , 11, FT_DIRECT); // вычисляем прямое БПФ
 
-	 float frequencySampl = 51200;
+	 float frequencySampl = 51200/2;
 	 float frequencyStep = frequencySampl / BUFFER_SIZE;
 
 	 float maxAmp=0;
@@ -133,7 +133,7 @@ static float GetFrequency()
 				+ imaginary[0]*imaginary[0]);
 		 float frequency = i * frequencyStep;
 
-		 if (ampl > maxAmp && frequency > 1400 && frequency < 6000)
+		 if (ampl > maxAmp && frequency > 1500 && frequency < 6000)
 		 {
 			 maxAmp=ampl;
 			 index = i;
@@ -166,12 +166,14 @@ static void PrintAdc()
   for (int i=0; i<BUFFER_SIZE; i++)
   {
 	  char fstr[5];
-	  itoa((int)adcBuf[i], fstr, 10);
+	  itoa((int)adcStore[i], fstr, 10);
 	  strcat(str, fstr);
 	  strcat(str,", ");
   }
   HAL_UART_Transmit(&huart2, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 }
+
+float prevFreq;
 
 static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
 {
@@ -181,6 +183,11 @@ static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
 
 	if (freq >0)
 	{
+		/*if (freq <1500)
+		{
+			PrintAdc();
+			PrintSamples();
+		}*/
 		Lcd_cursor(lcd, 1,0);
 		Lcd_int(lcd, (int)freq);
 	}
@@ -191,6 +198,7 @@ static void DisplayFreq(Lcd_HandleTypeDef* lcd,float freq)
 		Lcd_string(lcd, "0    ");
 	}
 }
+uint16_t failCount;
 /* USER CODE END 0 */
 
 /**
@@ -252,11 +260,23 @@ HAL_TIM_Base_Start_IT(&htim2);
 	  {
 		  isCalculating =1;
 		  float freq = GetFrequency();
+
+		  if ((abs(prevFreq-freq))/prevFreq <0.1 || prevFreq == 0 || freq == 0|| failCount>3)
+		  {
 		  DisplayFreq(&lcd, freq);
+		  prevFreq = freq;
+		  failCount =0;
+		  }
+		  else
+		  {
+			  failCount++;
+		  }
+
+
 
 	  	  isCalculating =0;
 	  	  bufferFull = 0;
-	  	  HAL_Delay(500);
+	  	  //HAL_Delay(200);
 	  }
 
     /* USER CODE END WHILE */
