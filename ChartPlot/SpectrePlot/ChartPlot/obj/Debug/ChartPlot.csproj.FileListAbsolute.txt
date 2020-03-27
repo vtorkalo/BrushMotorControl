@@ -26,3 +26,13 @@ d:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\D
 d:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.csproj.GenerateResource.cache
 d:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.exe
 d:\Projects\git-vtorkalo\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.pdb
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\bin\Debug\ChartPlot.exe.config
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\bin\Debug\ChartPlot.exe
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\bin\Debug\ChartPlot.pdb
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.csprojAssemblyReference.cache
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.Form1.resources
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.Properties.Resources.resources
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.csproj.GenerateResource.cache
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.csproj.CoreCompileInputs.cache
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.exe
+D:\stm32\work\BrushMotorControl\ChartPlot\SpectrePlot\ChartPlot\obj\Debug\ChartPlot.pdb
